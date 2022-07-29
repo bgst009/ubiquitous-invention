@@ -1,0 +1,11 @@
+out_path: "out.json"
+Interval: 4
+processors:
+  - amf
+  - smf
+  - udm
+  - udr
+  - ausf
+  - nssf
+  - nrf
+  - pcf
