@@ -101,17 +101,21 @@ func Monitor5gc() {
 		cpuCmdbuf.WriteString(str3)
 		ProcessInfo[i].CpuCmd = cpuCmdbuf.String()
 		fmt.Printf("info.CpuCmd: %v\n", ProcessInfo[i].CpuCmd)
-
 	}
 
-	// strconv
-	// // 内存
-	// cmd2 := `top -n 1 -p 18546| tail -3 | head -1 | awk '{ssd=NF-7} {print $ssd }'`
-	// // CPU
-	// cmd3 := ` top -n 1 -p 18546| tail -3 | head -1 | awk '{ssd=NF-4} {print $ssd }'`
+	for i := 0; i < len(ProcessInfo); i++ {
+		cpuByte, err := exec.Command("bash", "-c", ProcessInfo[i].CpuCmd).Output()
+		if err != nil {
+			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].CpuCmd)
+		}
+		ProcessInfo[i].CpuUsage = fmt.Sprint(cpuByte)
 
-	// cmd2buf.WriteString(`top -n 1 -p `)
-	// cmd2buf.WriteString(Pro)
+		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).Output()
+		if err != nil {
+			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].MemCmd)
+		}
+		ProcessInfo[i].MemoryUsage = fmt.Sprint(memBytes)
+	}
 
 	// 打印信息
 	fmt.Printf("ProcessInfo: %v\n", ProcessInfo)
