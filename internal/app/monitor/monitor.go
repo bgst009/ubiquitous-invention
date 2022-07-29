@@ -60,6 +60,7 @@ func NewMonitor() {
 }
 
 func Monitor5gc() {
+	// 获取 PID 和 路径
 	cmd1 := ` ps -ef | grep eb5gc/bin/ | grep -v "grep" |  awk '{pid=NF-6}{name=NF-0} {print $pid} {print $name}'`
 	fmt.Printf("cmd1: %v\n", cmd1)
 	b, err := exec.Command("bash", "-c", cmd1).Output()
@@ -70,29 +71,29 @@ func Monitor5gc() {
 
 	sa := strings.Split(fmt.Sprint(string(b)), "\n")
 
-	for i := 0; i < 2; i += 2 {
+	j := 0
+	for i := 0; i < len(sa)-1; i += 2 {
 		pid, err := strconv.Atoi(sa[i])
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
 			break
 		}
-		ProcessInfo[i].PID = pid
-		ProcessInfo[i].ProcessPath = sa[i+1]
+		ProcessInfo[j].PID = pid
+		ProcessInfo[j].ProcessPath = sa[i+1]
+		j++
 	}
 
 	fmt.Printf("len(sa): %v\n", len(sa))
 
-	// ProcessInfo[0].PID, _ = strconv.Atoi(sa[0])
-	// ProcessInfo[0].ProcessPath = sa[1]
 	fmt.Printf("ProcessInfo: %v\n", ProcessInfo)
 
-	// f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
-	// if err != nil {
-	// 	log.Fatalf("error while opening the file. %v", err)
-	// }
-	// defer f.Close()
-	// bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
-	// f.Write(bt)
+	f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		log.Fatalf("error while opening the file. %v", err)
+	}
+	defer f.Close()
+	bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
+	f.Write(bt)
 
 }
 
