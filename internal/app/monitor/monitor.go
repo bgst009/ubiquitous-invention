@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -67,7 +68,6 @@ func Monitor5gc() {
 	if err != nil {
 		fmt.Printf("Failed to execute command: %s", cmd1)
 	}
-	// fmt.Println(string(b))
 
 	sa := strings.Split(fmt.Sprint(string(b)), "\n")
 
@@ -83,10 +83,39 @@ func Monitor5gc() {
 		j++
 	}
 
-	fmt.Printf("len(sa): %v\n", len(sa))
+	str1 := `top -n 1 -p `
+	str2 := `| tail -3 | head -1 | awk '{ssd=NF-7} {print $ssd }'`
+	str3 := `| tail -3 | head -1 | awk '{ssd=NF-4} {print $ssd }'`
 
+	for _, info := range ProcessInfo {
+		stringPid := strconv.Itoa(info.PID)
+
+		var memCmdbuf bytes.Buffer
+		memCmdbuf.WriteString(str1)
+		memCmdbuf.WriteString(stringPid)
+		memCmdbuf.WriteString(str2)
+		info.MemCmd = memCmdbuf.String()
+
+		var cpuCmdbuf bytes.Buffer
+		cpuCmdbuf.WriteString(str1)
+		cpuCmdbuf.WriteString(stringPid)
+		cpuCmdbuf.WriteString(str3)
+		info.CpuCmd = cpuCmdbuf.String()
+	}
+
+	// strconv
+	// // 内存
+	// cmd2 := `top -n 1 -p 18546| tail -3 | head -1 | awk '{ssd=NF-7} {print $ssd }'`
+	// // CPU
+	// cmd3 := ` top -n 1 -p 18546| tail -3 | head -1 | awk '{ssd=NF-4} {print $ssd }'`
+
+	// cmd2buf.WriteString(`top -n 1 -p `)
+	// cmd2buf.WriteString(Pro)
+
+	// 打印信息
 	fmt.Printf("ProcessInfo: %v\n", ProcessInfo)
 
+	// 写入文件
 	f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		log.Fatalf("error while opening the file. %v", err)
