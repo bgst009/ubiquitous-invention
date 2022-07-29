@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/cpu"
@@ -59,8 +61,39 @@ func NewMonitor() {
 
 func Monitor5gc() {
 	cmd1 := ` ps -ef | grep eb5gc/bin/ | grep -v "grep" |  awk '{pid=NF-6}{name=NF-0} {print $pid} {print $name}'`
-	c := exec.Command("bash","-c",cmd1)
-	fmt.Println(c.Output())
+	fmt.Printf("cmd1: %v\n", cmd1)
+	b, err := exec.Command("bash", "-c", cmd1).Output()
+	if err != nil {
+		fmt.Printf("Failed to execute command: %s", cmd1)
+	}
+	// fmt.Println(string(b))
+
+	sa := strings.Split(fmt.Sprint(string(b)), "\n")
+
+	for i := 0; i < 2; i += 2 {
+		pid, err := strconv.Atoi(sa[i])
+		if err != nil {
+			fmt.Printf("err: %v\n", err)
+			break
+		}
+		ProcessInfo[i].PID = pid
+		ProcessInfo[i].ProcessPath = sa[i+1]
+	}
+
+	fmt.Printf("len(sa): %v\n", len(sa))
+
+	// ProcessInfo[0].PID, _ = strconv.Atoi(sa[0])
+	// ProcessInfo[0].ProcessPath = sa[1]
+	fmt.Printf("ProcessInfo: %v\n", ProcessInfo)
+
+	// f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
+	// if err != nil {
+	// 	log.Fatalf("error while opening the file. %v", err)
+	// }
+	// defer f.Close()
+	// bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
+	// f.Write(bt)
+
 }
 
 func init() {
