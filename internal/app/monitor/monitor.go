@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/common"
@@ -65,11 +64,11 @@ func Monitor5gc() {
 	// 获取命令
 	for i := 0; i < len(ProcessInfo); i++ {
 		ProcessInfo[i].MemCmd = common.GetCmdByPID(ProcessInfo[i].PID, "mem")
-		fmt.Printf("info.MemCmd: %v\n", ProcessInfo[i].MemCmd)
+		//fmt.Printf("info.MemCmd: %v\n", ProcessInfo[i].MemCmd)
 		ProcessInfo[i].CpuCmd = common.GetCmdByPID(ProcessInfo[i].PID, "cpu")
-		fmt.Printf("info.CpuCmd: %v\n", ProcessInfo[i].CpuCmd)
+		//fmt.Printf("info.CpuCmd: %v\n", ProcessInfo[i].CpuCmd)
 		ProcessInfo[i].ProcessNameCmd = common.GetCmdByPID(ProcessInfo[i].PID, "name")
-		fmt.Printf("info.ProcessNameCmd: %v\n", ProcessInfo[i].ProcessNameCmd)
+		//fmt.Printf("info.ProcessNameCmd: %v\n", ProcessInfo[i].ProcessNameCmd)
 	}
 
 	// 获取数据
@@ -77,16 +76,16 @@ func Monitor5gc() {
 		ProcessInfo[i].CpuUsage = cpu.GetUsageByPID(ProcessInfo[i].PID)
 		ProcessInfo[i].MemoryUsage = mem.GetUsageByPID(ProcessInfo[i].PID)
 		ProcessInfo[i].ProcessName = process.GetProcessNameByPID(ProcessInfo[i].PID)
-		fmt.Printf("ps: %s\tcpu: %s\tmem: %s\n,", ProcessInfo[i].ProcessName, ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
+		//fmt.Printf("ps: %s\tcpu: %s\tmem: %s\n,", ProcessInfo[i].ProcessName, ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
 
 	// 打印信息
-	indent, err := json.MarshalIndent(ProcessInfo, "", "\t")
-	if err != nil {
-		return
-	}
-	fmt.Printf("%s\n", bytes.NewBuffer(indent).String())
+	//indent, err := json.MarshalIndent(ProcessInfo, "", "\t")
+	//if err != nil {
+	//	return
+	//}
+	//fmt.Printf("%s\n", bytes.NewBuffer(indent).String())
 	// 写入文件
 	f, err := os.OpenFile("out.json", os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {

@@ -14,7 +14,7 @@ func GetProcessPIDByCmd(cmd1 string) []info.Info {
 	// 获取 PID 和 路径
 	ProcessInfo := make([]info.Info, 10)
 	//cmd1 := ` ps -ef | grep eb5gc/bin/ | grep -v "grep" |  awk '{pid=NF-6}{name=NF-0} {print $pid} {print $name}'`
-	fmt.Printf("cmd1: %v\n", cmd1)
+	//fmt.Printf("cmd1: %v\n", cmd1)
 	b, err := exec.Command("bash", "-c", cmd1).Output()
 	if err != nil {
 		fmt.Printf("Failed to execute command: %s", cmd1)
