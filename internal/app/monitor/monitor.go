@@ -14,6 +14,7 @@ import (
 	osmem "github.com/shirou/gopsutil/v3/mem"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -99,13 +100,26 @@ func TickM() {
 	monitor := context.NewMonitor()
 	monitor.SetProcessNames(cfg.Processors)
 
+	s := "0"
+	for i := 0; i < 5; i++ {
+		funcName(monitor, s)
+		time.Sleep(time.Second * time.Duration(cfg.Interval))
+		st, _ := strconv.Atoi(s)
+		st += cfg.Interval
+		s = strconv.Itoa(st)
+	}
+
+	common.WriteMonitor("monitor.json", *monitor)
+}
+
+func funcName(monitor *context.Monitor, s string) {
 	for i := 0; i < len(monitor.GetProcessNames()); i++ {
 		name := monitor.GetProcessNames()[i]
 
 		if monitor.CpuUsages[name] == nil {
 			monitor.CpuUsages[name] = make(map[string]context.CpuUsage)
 		}
-		monitor.CpuUsages[name]["10"] = struct {
+		monitor.CpuUsages[name][s] = struct {
 			TempTime   time.Time
 			Percentage string
 		}{TempTime: time.Now(), Percentage: cpu.GetUsageByPID(process.GetProcessPIDByName(name))}
@@ -113,14 +127,11 @@ func TickM() {
 		if monitor.MemUsage[name] == nil {
 			monitor.MemUsage[name] = make(map[string]context.MemUsage)
 		}
-		monitor.MemUsage[name]["10"] = struct {
+		monitor.MemUsage[name][s] = struct {
 			TempTime   time.Time
 			Percentage string
 		}{TempTime: time.Now(), Percentage: mem.GetUsageByPID(process.GetProcessPIDByName(name))}
-
 	}
-
-	common.WriteMonitor("monitor-10.json", *monitor)
 }
 
 func init() {
