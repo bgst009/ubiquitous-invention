@@ -114,7 +114,7 @@ func Monitor5gc() {
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].MemCmd)
 		}
-		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()
+		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()[:1]
 		fmt.Printf("cpu: %s\tmem: %s \n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
