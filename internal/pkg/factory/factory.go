@@ -9,12 +9,12 @@ import (
 var MonitorCfg *config.Config
 
 func InitConfigFactory() error {
-	viper.SetConfigName("cfg")             // name of config file (without extension)
-	viper.SetConfigType("yaml")            // REQUIRED if the config file does not have the extension in the name
-	viper.AddConfigPath("../../../config") // path to look for the config file in
-	viper.AddConfigPath(".")               // optionally look for config in the working directory
-	err := viper.ReadInConfig()            // Find and read the config file
-	if err != nil {                        // Handle errors reading the config file
+	viper.SetConfigName("cfg")                                         // name of config file (without extension)
+	viper.SetConfigType("yaml")                                        // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("../../../config")                             // path to look for the config file in
+	viper.AddConfigPath("/home/eb5gc/yze/ubiquitous-invention/config") // optionally look for config in the working directory
+	err := viper.ReadInConfig()                                        // Find and read the config file
+	if err != nil {                                                    // Handle errors reading the config file
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
