@@ -4,12 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	strconv "strconv"
-	"strings"
-
+	"github.com/bgst009/ubiquitous-invention/internal/pkg/common"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/cpu"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/factory"
@@ -17,6 +12,8 @@ import (
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/mem"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/process"
 	os_mem "github.com/shirou/gopsutil/v3/mem"
+	"log"
+	"os"
 )
 
 var (
@@ -29,16 +26,16 @@ func NewMonitor() {
 
 	// 获取所有进程 PID
 	for i := 0; i < len(cfg.Processors); i++ {
-		p, _ := process.GetProcessPIDByName(cfg.Processors[i])
-		ProcessInfo[i].PID = p
+		//p, _ := process.GetProcessPIDByName(strconv.Itoa(cfg.Processors[i]))
+		//ProcessInfo[i].PID = p
 	}
 
 	for _, pinfo := range ProcessInfo {
 		// 根据 PID 获取所有进程 memory usage
-		m, _ := mem.GetUsageByPID(pinfo.PID)
+		m := mem.GetUsageByPID(pinfo.PID)
 		pinfo.MemoryUsage = m
 		// 根据 PID 获取所有进程 cpu usage
-		c, _ := cpu.GetUsageByPID(pinfo.PID)
+		c := cpu.GetUsageByPID(pinfo.PID)
 		pinfo.CpuUsage = c
 	}
 
@@ -62,78 +59,24 @@ func NewMonitor() {
 
 func Monitor5gc() {
 	// 获取 PID 和 路径
-	cmd1 := ` ps -ef | grep eb5gc/bin/ | grep -v "grep" |  awk '{pid=NF-6}{name=NF-0} {print $pid} {print $name}'`
-	fmt.Printf("cmd1: %v\n", cmd1)
-	b, err := exec.Command("bash", "-c", cmd1).Output()
-	if err != nil {
-		fmt.Printf("Failed to execute command: %s", cmd1)
-	}
+	cmd := ` ps -ef | grep eb5gc/bin/ | grep -v "grep" |  awk '{pid=NF-6}{name=NF-0} {print $pid} {print $name}'`
+	ProcessInfo = process.GetProcessPIDByCmd(cmd)
 
-	sa := strings.Split(fmt.Sprint(string(b)), "\n")
-
-	j := 0
-	for i := 0; i < len(sa)-1; i += 2 {
-		pid, err := strconv.Atoi(sa[i])
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			break
-		}
-		ProcessInfo[j].PID = pid
-		ProcessInfo[j].ProcessPath = sa[i+1]
-		j++
-	}
-
-	str1 := `top -bn 1 -p `
-	str2 := `| tail -1 | awk '{ssd=NF-6} {print $ssd }'`
-	str3 := `| tail -1 | awk '{ssd=NF-3} {print $ssd }'`
-	str4 := `| tail -1 | awk '{ssd=NF-0} {print $ssd }'`
-
+	// 获取命令
 	for i := 0; i < len(ProcessInfo); i++ {
-		stringPid := strconv.Itoa(ProcessInfo[i].PID)
-		var memCmdbuf bytes.Buffer
-		memCmdbuf.WriteString(str1)
-		memCmdbuf.WriteString(stringPid)
-		memCmdbuf.WriteString(str2)
-		ProcessInfo[i].MemCmd = memCmdbuf.String()
+		ProcessInfo[i].MemCmd = common.GetCmdByPID(ProcessInfo[i].PID, "mem")
 		fmt.Printf("info.MemCmd: %v\n", ProcessInfo[i].MemCmd)
-		var cpuCmdbuf bytes.Buffer
-		cpuCmdbuf.WriteString(str1)
-		cpuCmdbuf.WriteString(stringPid)
-		cpuCmdbuf.WriteString(str3)
-		ProcessInfo[i].CpuCmd = cpuCmdbuf.String()
+		ProcessInfo[i].CpuCmd = common.GetCmdByPID(ProcessInfo[i].PID, "cpu")
 		fmt.Printf("info.CpuCmd: %v\n", ProcessInfo[i].CpuCmd)
-
-		var psNamebuf bytes.Buffer
-		psNamebuf.WriteString(str1)
-		psNamebuf.WriteString(stringPid)
-		psNamebuf.WriteString(str4)
-		ProcessInfo[i].ProcessNameCmd = psNamebuf.String()
+		ProcessInfo[i].ProcessNameCmd = common.GetCmdByPID(ProcessInfo[i].PID, "name")
 		fmt.Printf("info.ProcessNameCmd: %v\n", ProcessInfo[i].ProcessNameCmd)
 	}
 
+	// 获取数据
 	for i := 0; i < len(ProcessInfo); i++ {
-		cpuByte, err := exec.Command("bash", "-c", ProcessInfo[i].CpuCmd).CombinedOutput()
-		if err != nil {
-			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].CpuCmd)
-		}
-		ProcessInfo[i].CpuUsage = bytes.NewBuffer(cpuByte).String()
-		ProcessInfo[i].CpuUsage = strings.ReplaceAll(ProcessInfo[i].CpuUsage, "\n", " %")
-
-		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).CombinedOutput()
-		if err != nil {
-			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].MemCmd)
-		}
-		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()
-		ProcessInfo[i].MemoryUsage = strings.ReplaceAll(ProcessInfo[i].MemoryUsage, "\n", "")
-		memusage, _ := strconv.ParseFloat(ProcessInfo[i].MemoryUsage, 64)
-		ProcessInfo[i].MemoryUsage = fmt.Sprintf("%f%s", memusage/1024.00, ` M`)
-
-		psByte, err := exec.Command("bash", "-c", ProcessInfo[i].ProcessNameCmd).CombinedOutput()
-		if err != nil {
-			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].ProcessNameCmd)
-		}
-		ProcessInfo[i].ProcessName = bytes.NewBuffer(psByte).String()
-		ProcessInfo[i].ProcessName = strings.ReplaceAll(ProcessInfo[i].ProcessName, "\n", "")
+		ProcessInfo[i].CpuUsage = cpu.GetUsageByPID(ProcessInfo[i].PID)
+		ProcessInfo[i].MemoryUsage = mem.GetUsageByPID(ProcessInfo[i].PID)
+		ProcessInfo[i].ProcessName = process.GetProcessNameByPID(ProcessInfo[i].PID)
 		fmt.Printf("ps: %s\tcpu: %s\tmem: %s\n,", ProcessInfo[i].ProcessName, ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
@@ -145,7 +88,7 @@ func Monitor5gc() {
 	}
 	fmt.Printf("%s\n", bytes.NewBuffer(indent).String())
 	// 写入文件
-	f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
+	f, err := os.OpenFile("out.json", os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		log.Fatalf("error while opening the file. %v", err)
 	}
