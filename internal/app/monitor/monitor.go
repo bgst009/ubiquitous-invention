@@ -83,7 +83,7 @@ func Monitor5gc() {
 		j++
 	}
 
-	str1 := `top -n 1 -p `
+	str1 := `top -nb 1 -p `
 	str2 := `| tail -3 | head -1 | awk '{ssd=NF-7} {print $ssd }'`
 	str3 := `| tail -3 | head -1 | awk '{ssd=NF-4} {print $ssd }'`
 
