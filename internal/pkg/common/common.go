@@ -2,7 +2,11 @@ package common
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/bgst009/ubiquitous-invention/internal/pkg/info"
+	"log"
+	"os"
 	"os/exec"
 	"strconv"
 )
@@ -11,6 +15,17 @@ const Str1 = `top -bn 1 -p `
 const StrMem = `| tail -1 | awk '{ssd=NF-6} {print $ssd }'`
 const StrCpu = `| tail -1 | awk '{ssd=NF-3} {print $ssd }'`
 const StrName = `| tail -1 | awk '{ssd=NF-0} {print $ssd }'`
+
+func WriteInfo(path string, ProcessInfo []info.Info) {
+	// 写入文件
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		log.Fatalf("error while opening the file. %v", err)
+	}
+	defer f.Close()
+	bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
+	f.Write(bt)
+}
 
 func GetCmdByPID(pid int, w string) string {
 	strPid := strconv.Itoa(pid)

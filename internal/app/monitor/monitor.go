@@ -10,9 +10,10 @@ import (
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/info"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/mem"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/process"
-	os_mem "github.com/shirou/gopsutil/v3/mem"
+	osmem "github.com/shirou/gopsutil/v3/mem"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -46,7 +47,7 @@ func NewMonitor() {
 	b, _ := json.MarshalIndent(ProcessInfo, "", "\t")
 	f.Write(b)
 
-	v, _ := os_mem.VirtualMemory()
+	v, _ := osmem.VirtualMemory()
 
 	// almost every return value is a struct
 	fmt.Printf("Total: %v, Free:%v, UsedPercent:%f%%\n", v.Total, v.Free, v.UsedPercent)
@@ -80,20 +81,16 @@ func Monitor5gc() {
 
 	}
 
-	// 打印信息
-	//indent, err := json.MarshalIndent(ProcessInfo, "", "\t")
-	//if err != nil {
-	//	return
-	//}
-	//fmt.Printf("%s\n", bytes.NewBuffer(indent).String())
-	// 写入文件
-	f, err := os.OpenFile("out.json", os.O_CREATE|os.O_RDWR, 0777)
-	if err != nil {
-		log.Fatalf("error while opening the file. %v", err)
+	t1 := time.NewTimer(time.Second * 5)
+	t2 := time.NewTimer(time.Second * 10)
+	for {
+		select {
+		case <-t1.C:
+			common.WriteInfo("out-5s.json", ProcessInfo)
+		case <-t2.C:
+			common.WriteInfo("out-10s.json", ProcessInfo)
+		}
 	}
-	defer f.Close()
-	bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
-	f.Write(bt)
 
 }
 
