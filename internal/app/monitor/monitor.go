@@ -14,7 +14,6 @@ import (
 	osmem "github.com/shirou/gopsutil/v3/mem"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"time"
 )
@@ -115,7 +114,7 @@ func TickM() {
 		if count > 5 {
 			t1.Stop()
 			common.WriteMonitor("monitor.json", *monitor)
-			runtime.Goexit()
+			return
 		}
 	}
 }
