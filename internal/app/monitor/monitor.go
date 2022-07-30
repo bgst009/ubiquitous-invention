@@ -109,6 +109,15 @@ func TickM() {
 			TempTime   time.Time
 			Percentage string
 		}{TempTime: time.Now(), Percentage: cpu.GetUsageByPID(process.GetProcessPIDByName(name))}
+
+		if monitor.MemUsage[name] == nil {
+			monitor.MemUsage[name] = make(map[string]context.MemUsage)
+		}
+		monitor.MemUsage[name]["10"] = struct {
+			TempTime   time.Time
+			Percentage string
+		}{TempTime: time.Now(), Percentage: mem.GetUsageByPID(process.GetProcessPIDByName(name))}
+
 	}
 
 	common.WriteMonitor("monitor-10.json", *monitor)
