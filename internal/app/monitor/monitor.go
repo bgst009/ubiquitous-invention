@@ -108,6 +108,7 @@ func Monitor5gc() {
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].CpuCmd)
 		}
+		fmt.Printf("cpu %s", bytes.NewBuffer(cpuByte).String())
 		ProcessInfo[i].CpuUsage = fmt.Sprint(cpuByte)
 
 		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).CombinedOutput()
@@ -118,8 +119,11 @@ func Monitor5gc() {
 	}
 
 	// 打印信息
-	fmt.Printf("ProcessInfo: %v\n", ProcessInfo)
-
+	indent, err := json.MarshalIndent(ProcessInfo, "", "\n")
+	if err != nil {
+		return
+	}
+	fmt.Printf("%s\n", bytes.NewBuffer(indent).String())
 	// 写入文件
 	f, err := os.OpenFile("out.json", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
