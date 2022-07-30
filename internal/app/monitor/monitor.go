@@ -83,9 +83,9 @@ func Monitor5gc() {
 		j++
 	}
 
-	str1 := `top -nb 1 -p `
-	str2 := `| tail -3 | head -1 | awk '{ssd=NF-7} {print $ssd }'`
-	str3 := `| tail -3 | head -1 | awk '{ssd=NF-4} {print $ssd }'`
+	str1 := `top -bn 1 -p `
+	str2 := `| tail -1 | awk '{ssd=NF-6} {print $ssd }'`
+	str3 := `| tail -1 | awk '{ssd=NF-3} {print $ssd }'`
 
 	for i := 0; i < len(ProcessInfo); i++ {
 		stringPid := strconv.Itoa(ProcessInfo[i].PID)
