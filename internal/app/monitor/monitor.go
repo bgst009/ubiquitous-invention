@@ -117,7 +117,7 @@ func Monitor5gc() {
 		}
 		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()
 		ProcessInfo[i].MemoryUsage = strings.ReplaceAll(ProcessInfo[i].MemoryUsage, "\n", "")
-		memusage, _ := strconv.Atoi(ProcessInfo[i].MemoryUsage)
+		memusage, _ := strconv.ParseFloat(ProcessInfo[i].MemoryUsage, 64)
 		ProcessInfo[i].MemoryUsage = fmt.Sprintf("%d%s", memusage/1024.00, ` M`)
 		fmt.Printf("cpu: %s\tmem: %s\n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
