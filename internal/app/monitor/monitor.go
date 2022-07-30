@@ -107,8 +107,8 @@ func Monitor5gc() {
 		psNamebuf.WriteString(str1)
 		psNamebuf.WriteString(stringPid)
 		psNamebuf.WriteString(str4)
-		ProcessInfo[i].ProcessName = psNamebuf.String()
-		fmt.Printf("info.ProcessName: %v\n", ProcessInfo[i].ProcessName)
+		ProcessInfo[i].ProcessNameCmd = psNamebuf.String()
+		fmt.Printf("info.ProcessNameCmd: %v\n", ProcessInfo[i].ProcessNameCmd)
 	}
 
 	for i := 0; i < len(ProcessInfo); i++ {
@@ -127,7 +127,14 @@ func Monitor5gc() {
 		ProcessInfo[i].MemoryUsage = strings.ReplaceAll(ProcessInfo[i].MemoryUsage, "\n", "")
 		memusage, _ := strconv.ParseFloat(ProcessInfo[i].MemoryUsage, 64)
 		ProcessInfo[i].MemoryUsage = fmt.Sprintf("%f%s", memusage/1024.00, ` M`)
-		fmt.Printf("cpu: %s\tmem: %s\n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
+
+		psByte, err := exec.Command("bash", "-c", ProcessInfo[i].ProcessNameCmd).CombinedOutput()
+		if err != nil {
+			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].ProcessNameCmd)
+		}
+		ProcessInfo[i].ProcessName = bytes.NewBuffer(psByte).String()
+		ProcessInfo[i].ProcessName = strings.ReplaceAll(ProcessInfo[i].ProcessName, "\n", "")
+		fmt.Printf("ps: %s\tcpu: %s\tmem: %s\n,", ProcessInfo[i].ProcessName, ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
 
