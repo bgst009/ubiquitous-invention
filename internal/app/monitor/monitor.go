@@ -14,6 +14,7 @@ import (
 	osmem "github.com/shirou/gopsutil/v3/mem"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -95,21 +96,28 @@ func Monitor5gc() {
 	}
 
 }
-
 func TickM() {
 	monitor := context.NewMonitor()
 	monitor.SetProcessNames(cfg.Processors)
 
 	s := "0"
-	for i := 0; i < 5; i++ {
-		funcName(monitor, s)
-		time.Sleep(time.Minute * time.Duration(cfg.Interval))
-		st, _ := strconv.Atoi(s)
-		st += cfg.Interval
-		s = strconv.Itoa(st)
+	count := 1
+	t1 := time.NewTicker(time.Second * time.Duration(cfg.Interval))
+	for {
+		select {
+		case <-t1.C:
+			funcName(monitor, s)
+			st, _ := strconv.Atoi(s)
+			st += cfg.Interval
+			s = strconv.Itoa(st)
+		}
+		count++
+		if count > 5 {
+			t1.Stop()
+			common.WriteMonitor("monitor.json", *monitor)
+			runtime.Goexit()
+		}
 	}
-
-	common.WriteMonitor("monitor.json", *monitor)
 }
 
 func funcName(monitor *context.Monitor, s string) {
