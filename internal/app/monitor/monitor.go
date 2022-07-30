@@ -119,7 +119,7 @@ func Monitor5gc() {
 	}
 
 	// 打印信息
-	indent, err := json.MarshalIndent(ProcessInfo, "", "\n")
+	indent, err := json.MarshalIndent(ProcessInfo, "", "\t")
 	if err != nil {
 		return
 	}
