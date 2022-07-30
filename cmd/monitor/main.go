@@ -10,5 +10,5 @@ func main() {
 	fmt.Println("Starting")
 
 	// Create a new instance of the service
-	monitor.Monitor5gc()
+	monitor.TickM()
 }

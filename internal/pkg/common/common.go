@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/bgst009/ubiquitous-invention/internal/pkg/context"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/info"
 	"log"
 	"os"
@@ -24,6 +25,17 @@ func WriteInfo(path string, ProcessInfo []info.Info) {
 	}
 	defer f.Close()
 	bt, _ := json.MarshalIndent(ProcessInfo, "", "\t")
+	f.Write(bt)
+}
+
+func WriteMonitor(path string, m context.Monitor) {
+	// 写入文件
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		log.Fatalf("error while opening the file. %v", err)
+	}
+	defer f.Close()
+	bt, _ := json.MarshalIndent(m, "", "\t")
 	f.Write(bt)
 }
 

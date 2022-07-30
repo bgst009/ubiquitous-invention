@@ -1,24 +1,34 @@
 package factory
 
 import (
-	"io/ioutil"
-
+	"fmt"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
-	"gopkg.in/yaml.v3"
+	"github.com/spf13/viper"
 )
 
 var MonitorCfg *config.Config
 
-func InitConfigFactory(path string) error {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	MonitorCfg = config.NewConfig()
-	err2 := yaml.Unmarshal([]byte(b), MonitorCfg)
-	if err2 != nil {
-		return err2
+func InitConfigFactory() error {
+	viper.SetConfigName("cfg")             // name of config file (without extension)
+	viper.SetConfigType("yaml")            // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("../../../config") // path to look for the config file in
+	viper.AddConfigPath(".")               // optionally look for config in the working directory
+	err := viper.ReadInConfig()            // Find and read the config file
+	if err != nil {                        // Handle errors reading the config file
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
+	fmt.Println(viper.GetString("out_path"))
+	fmt.Println(viper.GetInt("Interval"))
+	fmt.Println(viper.GetStringSlice("processors"))
+
+	MonitorCfg.Processors = viper.GetStringSlice("processors")
+	MonitorCfg.Interval = viper.GetInt("Interval")
+	MonitorCfg.OutPath = viper.GetString("out_path")
+
 	return nil
+}
+
+func init() {
+	MonitorCfg = config.NewConfig()
 }

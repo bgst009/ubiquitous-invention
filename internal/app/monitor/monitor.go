@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/common"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
+	"github.com/bgst009/ubiquitous-invention/internal/pkg/context"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/cpu"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/factory"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/info"
@@ -94,7 +95,22 @@ func Monitor5gc() {
 
 }
 
+func TickM() {
+	monitor := context.NewMonitor()
+	monitor.SetProcessNames(cfg.Processors)
+
+	for i := 0; i < len(monitor.GetProcessNames()); i++ {
+		name := monitor.GetProcessNames()[i]
+		monitor.CpuUsages[name]["10"] = struct {
+			TempTime   time.Time
+			Percentage string
+		}{TempTime: time.Now(), Percentage: cpu.GetUsageByPID(process.GetProcessPIDByName(name))}
+	}
+
+	common.WriteMonitor("monitor-10.json", *monitor)
+}
+
 func init() {
-	factory.InitConfigFactory("/home/yin/workspace/golang-code/ubiquitous-invention/config/cfg.yaml")
+	factory.InitConfigFactory()
 	cfg = factory.MonitorCfg
 }
