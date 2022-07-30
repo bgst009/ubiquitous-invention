@@ -1,5 +1,5 @@
 out_path: "out.json"
-Interval: 4
+Interval: 10
 processors:
   - amf
   - smf

@@ -103,7 +103,7 @@ func TickM() {
 	s := "0"
 	for i := 0; i < 5; i++ {
 		funcName(monitor, s)
-		time.Sleep(time.Second * time.Duration(cfg.Interval))
+		time.Sleep(time.Minute * time.Duration(cfg.Interval))
 		st, _ := strconv.Atoi(s)
 		st += cfg.Interval
 		s = strconv.Itoa(st)
