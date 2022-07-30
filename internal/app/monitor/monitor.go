@@ -108,14 +108,16 @@ func Monitor5gc() {
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].CpuCmd)
 		}
-		ProcessInfo[i].CpuUsage = bytes.NewBuffer(cpuByte).String()[:1]
+		ProcessInfo[i].CpuUsage = bytes.NewBuffer(cpuByte).String()
+		strings.Replace(ProcessInfo[i].CpuUsage, "\\n", "", -1)
 
 		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].MemCmd)
 		}
-		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()[:1]
-		fmt.Printf("cpu: %s\tmem: %s \n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
+		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()
+		strings.Replace(ProcessInfo[i].MemoryUsage, "\\n", "", -1)
+		fmt.Printf("cpu: %s\tmem: %s\n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
 
