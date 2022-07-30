@@ -104,13 +104,13 @@ func Monitor5gc() {
 	}
 
 	for i := 0; i < len(ProcessInfo); i++ {
-		cpuByte, err := exec.Command("bash", "-c", ProcessInfo[i].CpuCmd).Output()
+		cpuByte, err := exec.Command("bash", "-c", ProcessInfo[i].CpuCmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].CpuCmd)
 		}
 		ProcessInfo[i].CpuUsage = fmt.Sprint(cpuByte)
 
-		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).Output()
+		memBytes, err := exec.Command("bash", "-c", ProcessInfo[i].MemCmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Failed to execute command: %s", ProcessInfo[i].MemCmd)
 		}
