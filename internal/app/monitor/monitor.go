@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strconv"
+	strconv "strconv"
 	"strings"
 
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
@@ -117,6 +117,8 @@ func Monitor5gc() {
 		}
 		ProcessInfo[i].MemoryUsage = bytes.NewBuffer(memBytes).String()
 		ProcessInfo[i].MemoryUsage = strings.ReplaceAll(ProcessInfo[i].MemoryUsage, "\n", "")
+		memusage, _ := strconv.Atoi(ProcessInfo[i].MemoryUsage)
+		ProcessInfo[i].MemoryUsage = fmt.Sprintf("%d%s", memusage/1024, `%`)
 		fmt.Printf("cpu: %s\tmem: %s\n,", ProcessInfo[i].CpuUsage, ProcessInfo[i].MemoryUsage)
 
 	}
