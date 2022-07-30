@@ -86,6 +86,7 @@ func Monitor5gc() {
 	str1 := `top -bn 1 -p `
 	str2 := `| tail -1 | awk '{ssd=NF-6} {print $ssd }'`
 	str3 := `| tail -1 | awk '{ssd=NF-3} {print $ssd }'`
+	str4 := `| tail -1 | awk '{ssd=NF-0} {print $ssd }'`
 
 	for i := 0; i < len(ProcessInfo); i++ {
 		stringPid := strconv.Itoa(ProcessInfo[i].PID)
@@ -101,6 +102,13 @@ func Monitor5gc() {
 		cpuCmdbuf.WriteString(str3)
 		ProcessInfo[i].CpuCmd = cpuCmdbuf.String()
 		fmt.Printf("info.CpuCmd: %v\n", ProcessInfo[i].CpuCmd)
+
+		var psNamebuf bytes.Buffer
+		psNamebuf.WriteString(str1)
+		psNamebuf.WriteString(stringPid)
+		psNamebuf.WriteString(str4)
+		ProcessInfo[i].ProcessName = psNamebuf.String()
+		fmt.Printf("info.ProcessName: %v\n", ProcessInfo[i].ProcessName)
 	}
 
 	for i := 0; i < len(ProcessInfo); i++ {
