@@ -101,6 +101,10 @@ func TickM() {
 
 	for i := 0; i < len(monitor.GetProcessNames()); i++ {
 		name := monitor.GetProcessNames()[i]
+
+		if monitor.CpuUsages[name] == nil {
+			monitor.CpuUsages[name] = make(map[string]context.CpuUsage)
+		}
 		monitor.CpuUsages[name]["10"] = struct {
 			TempTime   time.Time
 			Percentage string
