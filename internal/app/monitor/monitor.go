@@ -3,6 +3,11 @@ package monitor
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/common"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/config"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/context"
@@ -12,10 +17,6 @@ import (
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/mem"
 	"github.com/bgst009/ubiquitous-invention/internal/pkg/process"
 	osmem "github.com/shirou/gopsutil/v3/mem"
-	"log"
-	"os"
-	"strconv"
-	"time"
 )
 
 var (
@@ -101,7 +102,7 @@ func TickM() {
 
 	s := "0"
 	count := 1
-	t1 := time.NewTicker(time.Second * time.Duration(cfg.Interval))
+	t1 := time.NewTicker(time.Minute * time.Duration(cfg.Interval))
 	for {
 		select {
 		case <-t1.C:
